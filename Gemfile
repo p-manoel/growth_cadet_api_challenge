@@ -36,3 +36,5 @@ end
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem "shoulda-matchers", "~> 5.3"
+
+gem "u-case", "~> 4.5"

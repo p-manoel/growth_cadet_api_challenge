@@ -76,6 +76,7 @@ GEM
       activesupport (>= 4.2.0)
     i18n (1.8.10)
       concurrent-ruby (~> 1.0)
+    kind (5.10.0)
     listen (3.3.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
@@ -164,6 +165,11 @@ GEM
     thor (1.1.0)
     tzinfo (2.0.4)
       concurrent-ruby (~> 1.0)
+    u-attributes (2.8.0)
+      kind (>= 4.0, < 6.0)
+    u-case (4.5.2)
+      kind (>= 5.6, < 6.0)
+      u-attributes (>= 2.7, < 3.0)
     validates_hostname (1.0.11)
       activerecord (>= 3.0)
       activesupport (>= 3.0)
@@ -189,6 +195,7 @@ DEPENDENCIES
   spring
   spring-watcher-listen (~> 2.0.0)
   tzinfo-data
+  u-case (~> 4.5)
   validates_hostname (~> 1.0)
 
 RUBY VERSION
