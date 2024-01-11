@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Dns::Create, type: :model do
+RSpec.describe Dns::Create, type: :use_case do
   describe '.call' do
     let(:hostnames) { ['lorem.com', 'ipsum.com', 'dolor.com', 'amet.com', 'sit.com'].sample(3) }
 

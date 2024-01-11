@@ -149,10 +149,6 @@ RSpec.describe Api::V1::DnsRecordsController, type: :controller do
             ],
             related_hostnames: [
               {
-                count: 1,
-                hostname: lorem
-              },
-              {
                 count: 4,
                 hostname: ipsum
               },
@@ -167,6 +163,10 @@ RSpec.describe Api::V1::DnsRecordsController, type: :controller do
               {
                 count: 2,
                 hostname: sit
+              },
+              {
+                count: 1,
+                hostname: lorem
               }
             ]
           }
@@ -193,15 +193,15 @@ RSpec.describe Api::V1::DnsRecordsController, type: :controller do
             total_records: 3,
             records: [
               {
-                id: 6,
+                id: 16,
                 ip_address: ip1
               },
               {
-                id: 8,
+                id: 18,
                 ip_address: ip3
               },
               {
-                id: 9,
+                id: 19,
                 ip_address: ip4
               }
             ],
@@ -231,7 +231,7 @@ RSpec.describe Api::V1::DnsRecordsController, type: :controller do
         end
 
         it 'returns only the included dns records without a related hostname' do
-          expect(parsed_body).to eq expected_response
+          expect(parsed_body).to eq(expected_response)
         end
       end
 
@@ -312,12 +312,12 @@ RSpec.describe Api::V1::DnsRecordsController, type: :controller do
             ],
             related_hostnames: [
               {
-                count: 1,
-                hostname: lorem
-              },
-              {
                 count: 2,
                 hostname: amet
+              },
+              {
+                count: 1,
+                hostname: lorem
               }
             ]
           }
