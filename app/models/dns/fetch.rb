@@ -5,48 +5,54 @@ module Dns
     attribute :excluded, validates: { kind: ::Array }
 
     def call!
-      fetch_dns_records
+      fetch_dns_records_and_hostnames
         .then(:format_response)
     end
 
     private
 
-    def fetch_dns_records
-      dns_records = Record.joins(:hostnames).all
+    def fetch_dns_records_and_hostnames
+      query = ::Dns::Record.joins(:hostnames)
 
-      dns_records = dns_records.where.not(hostnames: { hostname: excluded }) if excluded.any?
+      hostnames = query.map(&:hostnames).flatten.pluck(:hostname).uniq
 
       if included.any?
-        dns_records = dns_records
-                      .where(hostnames: { hostname: included })
-                      .group(:id)
-                      .having("COUNT(DISTINCT hostnames.id) = ?", included.count)
+        query = query.where(hostnames: { hostname: included })
+                     .group(:id)
+                     .having('COUNT(DISTINCT hostnames.id) = ?', included.count)
+
+        hostnames = query.map(&:hostnames).flatten.pluck(:hostname).uniq.select { included.exclude?(_1) }
       end
 
-      Success(:dns_records_fetched, result: { dns_records: dns_records.uniq })
+      if excluded.any?
+        query = query.map { _1 unless _1.hostnames.pluck(:hostname).include?(*excluded) }.compact
+
+        hostnames = query.map(&:hostnames).flatten.pluck(:hostname).uniq.select { included.exclude?(_1) }
+      end
+
+      Success(:dns_records_fetched, result: { dns_records: query.uniq, hostnames: hostnames })
     end
 
-    def format_response(dns_records:, **)
-      formatted_response = {
-        total_records: dns_records.count,
-        records: dns_records.map do |dns_record|
-          {
-            id: dns_record.id,
-            ip_address: dns_record.ip
-          }
-        end,
-        related_hostnames: dns_records.flat_map(&:hostnames)
-                                      .reject { |hostname| included.include?(hostname.hostname) }
-                                      .group_by(&:hostname)
-                                      .map do |hostname, hostnames|
-          {
-            hostname: hostname,
-            count: hostnames.size
-          }
-        end
-      }
+    def format_response(dns_records:, hostnames:, **)
+      hostnames_with_count = hostnames.map do |hostname|
+        {
+          hostname: hostname,
+          count: dns_records.select { _1.hostnames.pluck(:hostname).include?(hostname) }.count
+        }
+      end.sort_by { -_1[:count] }
 
-      Success(:response_formatted, result: { formatted_response: formatted_response })
+      Success(result: {
+        formatted_response: {
+          total_records: dns_records.count,
+          records: dns_records.map do |dns_record|
+            {
+              id: dns_record.id,
+              ip_address: dns_record.ip,
+            }
+          end,
+          related_hostnames: hostnames_with_count
+      }
+      })
     end
   end
 end
